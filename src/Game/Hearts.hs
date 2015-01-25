@@ -1,9 +1,11 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving,
+    TypeSynonymInstances,
+    FlexibleInstances #-}
 module Game.Hearts where
 
 import Prelude hiding (foldr)
 import Data.Monoid (Monoid)
-import Data.Foldable
+import Data.Foldable (Foldable, foldr)
 import Data.Set (Set)
 import qualified Data.Set as S
 
@@ -33,13 +35,41 @@ data CardRank = Two
 
 data Card = Card { cardRank :: CardRank, cardSuit :: CardSuit } deriving (Eq, Ord, Show)
 
+newtype Hand_ a = Hand { unHand :: Set a } deriving (Eq, Ord, Show, Monoid, Foldable)
+type Hand = Hand_ (Player, Card)
+
+newtype Deck_ a = Deck { unDeck :: Set a } deriving (Eq, Ord, Show, Monoid, Foldable)
+type Deck = Deck_ Card
+
+type Player = String
 type Score = Int
 
-newtype Deck' a = Deck { unDeck :: Set a } deriving (Eq, Ord, Show, Monoid,Foldable)
-type Deck = Deck' Card
+-- classes
+class IsCard c where
+    getCard :: c -> Card
+
+class HasCards t where
+    putCard :: (IsCard c, Ord c) => c -> t c -> t c
+    getIsCards :: IsCard c => t c -> [c]
+    getCards :: IsCard c => t c -> [Card]
+    getCards = map getCard . getIsCards
 
 
 -- Instances
+instance IsCard Card where
+    getCard = id
+
+instance IsCard (a, Card) where
+    getCard = snd
+
+instance HasCards Deck_ where
+    getIsCards = deckToList
+    putCard = deckInsert
+
+instance HasCards Hand_ where
+    getIsCards = handToList
+    putCard = handInsert
+
 instance Arbitrary CardSuit where
     arbitrary = elements [Hearts ..]
 
@@ -52,19 +82,34 @@ instance Arbitrary Card where
         s <- arbitrary
         return $ Card r s
 
-instance (Arbitrary a, Ord a) => Arbitrary (Deck' a) where
+instance (Arbitrary a, Ord a) => Arbitrary (Deck_ a) where
     arbitrary = (Deck . S.fromList) `fmap` arbitrary
 
 
 -- Functions
-fromList :: [Card] -> Deck
-fromList = Deck . S.fromList
+emptyDeck :: Deck_ a
+emptyDeck = Deck S.empty
 
-toList :: Deck -> [Card]
-toList = S.toList . unDeck
+deckFromList :: Ord a => [a] -> Deck_ a
+deckFromList = Deck . S.fromList
+
+deckToList :: Deck_ a  -> [a]
+deckToList = S.toList . unDeck
+
+deckInsert :: Ord a => a -> Deck_ a -> Deck_ a
+deckInsert c = Deck . S.insert c . unDeck
+
+handFromList :: Ord a => [a] -> Hand_ a
+handFromList = Hand . S.fromList
+
+handToList :: Hand_ a -> [a]
+handToList = S.toList . unHand
+
+handInsert :: Ord a => a -> Hand_ a -> Hand_ a
+handInsert c = Hand . S.insert c . unHand
 
 makeDeck :: Deck
-makeDeck = fromList [ Card rank suit | suit <- [Hearts ..], rank <- [Two ..]]
+makeDeck = deckFromList [ Card rank suit | suit <- [Hearts ..], rank <- [Two ..]]
 
 cardScore :: Card -> Score
 cardScore (Card _ Hearts) = 1
@@ -72,6 +117,12 @@ cardScore (Card Queen Spades) = 13
 cardScore _ = 0
 
 deckScore :: Deck -> Score
-deckScore deck = if allScoreCards == (allScoreCards `S.intersection` unDeck deck) then 0 else foldr (\card acc -> acc + cardScore card) 0 deck
+deckScore deck = if allScoreCards == (allScoreCards `S.intersection` unDeck deck) then 0 else foldr (\card acc -> acc + cardScore card) 0 (unDeck deck)
   where
     allScoreCards = S.fromList $ Card Queen Spades : [Card rank Hearts | rank <- [Two ..]]
+
+emptyHand :: Hand
+emptyHand = Hand S.empty
+
+playHand :: (Player, Card) -> Hand -> Hand
+playHand = putCard

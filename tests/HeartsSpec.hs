@@ -2,9 +2,9 @@ module HeartsSpec (spec) where
 
 -- base modules
 import Prelude hiding (foldr)
+import qualified Data.Foldable as F
 import Data.List (sort, group)
 import qualified Data.Set as S
-import Data.Foldable (foldr)
 -- testing modules
 import Test.Hspec
 import Test.Hspec.QuickCheck
@@ -14,7 +14,7 @@ import Game.Hearts
 {-# ANN module "HLint: ignore Redundant do" #-}
 
 spec :: Spec
-spec = do
+spec = parallel $ do
     describe "Card" $ do
         it "can be ordered by rank" $ do
             Card Ace Hearts `shouldSatisfy` (> Card King Hearts)
@@ -47,22 +47,21 @@ spec = do
             let isUnique [_] = True
                 isUnique _ = False
                 keepDuplicates = filter (not . isUnique)
-            (keepDuplicates . group . sort . toList) deck `shouldBe` []
+            (keepDuplicates . group . sort . deckToList) deck `shouldBe` []
 
-        context "as a Foldable instance" $
-            it "can be folded to its card count" $
-                foldr (const succ) 0 makeDeck `shouldBe` (52 :: Int)
+        it "can be reduced to its card count" $
+            F.foldr (const succ) 0 makeDeck `shouldBe` (52 :: Int)
 
 
     describe "deckScore" $ do
         it "counts how many points a deck is worth" $ do
-            let deck = fromList [Card Queen Spades, Card Three Clubs, Card King Hearts, Card Seven Hearts, Card Ace Spades, Card Ten Diamonds]
+            let deck = deckFromList [Card Queen Spades, Card Three Clubs, Card King Hearts, Card Seven Hearts, Card Ace Spades, Card Ten Diamonds]
             deckScore deck `shouldBe` 15
-            let deck' = fromList [Card Three Hearts, Card Queen Clubs, Card Four Hearts, Card Ace Diamonds, Card Ten Hearts]
+            let deck' = deckFromList [Card Three Hearts, Card Queen Clubs, Card Four Hearts, Card Ace Diamonds, Card Ten Hearts]
             deckScore deck' `shouldBe` 3
-            let deck'' = fromList [Card Three Clubs, Card Ace Spades, Card Ten Diamonds]
+            let deck'' = deckFromList [Card Three Clubs, Card Ace Spades, Card Ten Diamonds]
             deckScore deck'' `shouldBe` 0
-            let deck''' = fromList [Card rank Hearts | rank <- [Two ..]]
+            let deck''' = deckFromList [Card rank Hearts | rank <- [Two ..]]
             deckScore deck''' `shouldBe` 13
 
         context "any amount of Hearts less than all, with/without Queen of Spades in Deck" $ do
@@ -84,3 +83,15 @@ spec = do
                 \deck -> if allScoreCards == (allScoreCards `S.intersection` unDeck deck)
                              then deckScore deck == 0
                              else otherwise
+
+    describe "emptyHand" $ do
+        it "contains no cards" $ do
+            handToList emptyHand `shouldBe` []
+
+    describe "playHand" $ do
+        prop "adds a card to the Hand" $ do
+            let h = emptyHand
+            \p c -> playHand (p, c) h == Hand (S.singleton (p, c))
+        prop "does not add a card if player has already played" $ do
+            let h = emptyHand
+            \p c -> let h' = playHand (p, c) h in playHand (p, c) h' == h'
