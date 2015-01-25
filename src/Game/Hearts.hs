@@ -4,11 +4,13 @@
 module Game.Hearts where
 
 import Prelude hiding (foldr)
+
 import Data.Monoid (Monoid)
 import Data.Foldable (Foldable, foldr)
 import Data.Set (Set)
 import qualified Data.Set as S
 
+import Control.Monad.Trans.State
 import Test.QuickCheck
 
 -- Data types
@@ -35,6 +37,17 @@ data CardRank = Two
 
 data Card = Card { cardRank :: CardRank, cardSuit :: CardSuit } deriving (Eq, Ord, Show)
 
+data HeartsState = HeartsState
+                 { turns :: [Hand]
+                 , players :: [PlayerState]
+                 } deriving (Eq, Show)
+
+data PlayerState = PlayerState
+                 { playerId :: Player
+                 , playerHandDeck :: Deck
+                 , playerStoreDeck :: Deck
+                 } deriving (Eq, Show)
+
 newtype Hand_ a = Hand { unHand :: Set a } deriving (Eq, Ord, Show, Monoid, Foldable)
 type Hand = Hand_ (Player, Card)
 
@@ -43,6 +56,7 @@ type Deck = Deck_ Card
 
 type Player = String
 type Score = Int
+type HeartsGame = State HeartsState
 
 -- classes
 class IsCard c where
@@ -53,7 +67,6 @@ class HasCards t where
     getIsCards :: IsCard c => t c -> [c]
     getCards :: IsCard c => t c -> [Card]
     getCards = map getCard . getIsCards
-
 
 -- Instances
 instance IsCard Card where
@@ -126,3 +139,9 @@ emptyHand = Hand S.empty
 
 playHand :: (Player, Card) -> Hand -> Hand
 playHand = putCard
+
+initHeartsState :: HeartsState
+initHeartsState = HeartsState [] []
+
+initPlayer :: Player -> PlayerState
+initPlayer p = PlayerState p emptyDeck emptyDeck

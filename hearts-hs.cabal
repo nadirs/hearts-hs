@@ -17,11 +17,12 @@ cabal-version:      >=1.10
 
 executable hearts-hs
   main-is:          Main.hs
-  -- other-modules:
+  other-modules:    Game.Hearts
   -- other-extensions:
   build-depends:    base >=4.7 && <4.8,
                     array,
                     containers,
+                    transformers,
                     hspec,
                     QuickCheck
   hs-source-dirs:   src
@@ -33,5 +34,5 @@ Test-Suite tests
   hs-source-dirs:   tests, src
   type:             exitcode-stdio-1.0
   default-language: Haskell2010
-  build-depends:    base, array, containers, hspec, QuickCheck
+  build-depends:    base, array, containers, transformers, hspec, QuickCheck
   ghc-options:      -Wall -fno-warn-orphans -fhpc -threaded
