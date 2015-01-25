@@ -1,11 +1,11 @@
-module Game.Hearts.State where
+module Hearts.State where
 
 import Control.Monad.Trans.State
 
-import Game.Hearts.Deck
-import Game.Hearts.Hand
+import Hearts.Deck
+import Hearts.Hand
 
-import Game.Hearts.Class
+import Hearts.Class
 
 data HeartsState = HeartsState
                  { turns :: [Hand]

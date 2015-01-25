@@ -1,5 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
-module Game.Hearts.Class where
+module Hearts.Class where
 
 import Test.QuickCheck
 

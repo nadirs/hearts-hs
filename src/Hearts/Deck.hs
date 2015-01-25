@@ -1,5 +1,5 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-module Game.Hearts.Deck where
+module Hearts.Deck where
 
 import Prelude hiding (foldr)
 import Data.Monoid (Monoid)
@@ -9,7 +9,7 @@ import qualified Data.Set as S
 
 import Test.QuickCheck
 
-import Game.Hearts.Class
+import Hearts.Class
 
 -- Data types
 

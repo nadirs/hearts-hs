@@ -1,4 +1,4 @@
-module Game.Hearts
+module Hearts
     -- Data types
     ( Card(..)
     , CardSuit(..)
@@ -28,7 +28,7 @@ module Game.Hearts
     , playHand
     ) where
 
-import Game.Hearts.Class
-import Game.Hearts.Deck
-import Game.Hearts.Hand
-import Game.Hearts.State
+import Hearts.Class
+import Hearts.Deck
+import Hearts.Hand
+import Hearts.State

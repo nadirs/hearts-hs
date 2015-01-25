@@ -1,12 +1,12 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-module Game.Hearts.Hand where
+module Hearts.Hand where
 
 import Data.Monoid (Monoid)
 import Data.Foldable (Foldable)
 import Data.Set (Set)
 import qualified Data.Set as S
 
-import Game.Hearts.Class
+import Hearts.Class
 
 newtype Hand_ a = Hand { unHand :: Set a } deriving (Eq, Ord, Show, Monoid, Foldable)
 

@@ -9,7 +9,7 @@ import qualified Data.Set as S
 import Test.Hspec
 import Test.Hspec.QuickCheck
 -- our modules
-import Game.Hearts
+import Hearts
 
 {-# ANN module "HLint: ignore Redundant do" #-}
 
