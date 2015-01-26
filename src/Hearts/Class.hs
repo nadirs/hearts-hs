@@ -1,8 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 module Hearts.Class where
 
-import Test.QuickCheck
-
 -- Data types
 
 data CardSuit = Hearts
@@ -50,18 +48,6 @@ instance IsCard Card where
 
 instance IsCard (a, Card) where
     getCard = snd
-
-instance Arbitrary CardSuit where
-    arbitrary = elements [Hearts ..]
-
-instance Arbitrary CardRank where
-    arbitrary = elements [Two ..]
-
-instance Arbitrary Card where
-    arbitrary = do
-        r <- arbitrary
-        s <- arbitrary
-        return $ Card r s
 
 -- Functions
 

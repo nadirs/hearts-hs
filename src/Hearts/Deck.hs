@@ -7,8 +7,6 @@ import Data.Foldable (Foldable, foldr)
 import Data.Set (Set)
 import qualified Data.Set as S
 
-import Test.QuickCheck
-
 import Hearts.Class
 
 -- Data types
@@ -22,10 +20,6 @@ type Deck = Deck_ Card
 instance HasCards Deck_ where
     getIsCards = deckToList
     putCard = deckInsert
-
-instance (Arbitrary a, Ord a) => Arbitrary (Deck_ a) where
-    arbitrary = (Deck . S.fromList) `fmap` arbitrary
-
 
 -- Functions
 

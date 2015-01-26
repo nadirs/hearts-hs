@@ -1,15 +1,15 @@
 module HeartsSpec (spec) where
 
--- base modules
 import Prelude hiding (foldr)
 import qualified Data.Foldable as F
 import Data.List (sort, group)
 import qualified Data.Set as S
--- testing modules
+
 import Test.Hspec
 import Test.Hspec.QuickCheck
--- our modules
+
 import Hearts
+import Hearts.Instances()
 
 {-# ANN module "HLint: ignore Redundant do" #-}
 
