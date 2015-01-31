@@ -7,8 +7,10 @@ import qualified Data.Set as S
 
 import Test.Hspec
 import Test.Hspec.QuickCheck
+import Test.QuickCheck (arbitrary)
 
 import Hearts
+import Hearts.Hand
 import Hearts.Instances()
 
 {-# ANN module "HLint: ignore Redundant do" #-}
@@ -88,10 +90,12 @@ spec = parallel $ do
         it "contains no cards" $ do
             handToList emptyHand `shouldBe` []
 
-    describe "playHand" $ do
-        prop "adds a card to the Hand" $ do
+    describe "validatePlayOnHand" $ do
+        prop "can add a card to the Hand" $ do
             let h = emptyHand
-            \p c -> playHand (p, c) h == Hand (S.singleton (p, c))
-        prop "does not add a card if player has already played" $ do
+            \p c -> validatePlayOnHand (p, c) h == PlayHand (p, c) h
+        prop "can not add a card if player has already played" $ do
             let h = emptyHand
-            \p c -> let h' = playHand (p, c) h in playHand (p, c) h' == h'
+            \p c -> let h' = insert (p, c) h in do
+                c' <- arbitrary
+                return $ validatePlayOnHand (p, c') h' == ForbiddenPlay h'

@@ -12,6 +12,7 @@ module Hearts
     , HeartsGame
     , HeartsState(..)
     , PlayerState(..)
+    , PlayHandResult(..)
     -- Classes and Instances
     , IsCard(..)
     , HasCards(..)
@@ -25,10 +26,11 @@ module Hearts
     , emptyHand
     , handToList
     , handFromList
-    , playHand
+    , validatePlayOnHand
     ) where
 
 import Hearts.Class
 import Hearts.Deck
 import Hearts.Hand
 import Hearts.State
+import Hearts.Game

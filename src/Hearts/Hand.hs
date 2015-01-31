@@ -16,7 +16,7 @@ type Hand = Hand_ (Player, Card)
 
 instance HasCards Hand_ where
     getIsCards = handToList
-    putCard = handInsert
+    putCard = insert
 
 -- Functions
 
@@ -26,11 +26,8 @@ handFromList = Hand . S.fromList
 handToList :: Hand_ a -> [a]
 handToList = S.toList . unHand
 
-handInsert :: Ord a => a -> Hand_ a -> Hand_ a
-handInsert c = Hand . S.insert c . unHand
+insert :: Ord a => a -> Hand_ a -> Hand_ a
+insert c = Hand . S.insert c . unHand
 
 emptyHand :: Hand
 emptyHand = Hand S.empty
-
-playHand :: (Player, Card) -> Hand -> Hand
-playHand = putCard
